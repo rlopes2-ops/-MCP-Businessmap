@@ -79,6 +79,8 @@ Antes de começar, certifique-se de que o Python 3.7+ está instalado em seu des
       "args": [
         "-y",
         "mcp-businessmap",
+        "--transport=sse",
+        "--port=8000",
         "--businessmap-url=https://sua-empresa.kanbanize.com",
         "--businessmap-apikey=sua_api_key"
       ]
@@ -97,6 +99,8 @@ Para modo somente leitura, use esta versão com `--read-only`:
       "args": [
         "-y",
         "mcp-businessmap",
+        "--transport=sse",
+        "--port=8000",
         "--businessmap-url=https://sua-empresa.kanbanize.com",
         "--businessmap-apikey=sua_api_key",
         "--read-only"
@@ -107,6 +111,28 @@ Para modo somente leitura, use esta versão com `--read-only`:
 ```
 
 3. Reinicie o Claude Desktop e comece a gerenciar seus projetos com Businessmap!
+
+### Configuração com N8N
+
+Para usar o MCP-Businessmap com N8N:
+
+1. No N8N, crie uma nova credencial do tipo "MCP Client (STDIO) API"
+2. Configure com os seguintes parâmetros:
+   - **Nome da Credencial**: "BusinessmapIntegration" (ou outro nome com pelo menos 3 caracteres)
+   - **Comando**: `npx`
+   - **Argumentos**:
+     ```
+     -y
+     mcp-businessmap
+     --transport=sse
+     --port=8000
+     --businessmap-url=https://sua-empresa.kanbanize.com
+     --businessmap-apikey=sua_api_key
+     ```
+
+**IMPORTANTE**: Certifique-se de que cada argumento esteja em uma linha separada, conforme mostrado acima.
+
+Para solucionar problemas de conexão, você pode adicionar o argumento `--verbose` para obter mais informações de depuração.
 
 ### Outra Opção: Instalando via Smithery
 
@@ -126,7 +152,7 @@ pip install mcp-businessmap
 git clone https://github.com/rlopes2-ops/-MCP-Businessmap.git
 cd MCP-Businessmap
 docker build -t mcp/businessmap .
-docker run -p 8000:8000 mcp/businessmap --businessmap-url=https://sua-empresa.kanbanize.com --businessmap-apikey=sua_api_key
+docker run -p 8000:8000 mcp/businessmap --transport=sse --port=8000 --businessmap-url=https://sua-empresa.kanbanize.com --businessmap-apikey=sua_api_key
 ```
 
 ## Configuração e Uso
@@ -135,8 +161,10 @@ Você pode configurar o servidor MCP usando argumentos de linha de comando:
 
 ```bash
 mcp-businessmap \
-  --businessmap-url https://sua-empresa.kanbanize.com \
-  --businessmap-apikey sua_api_key
+  --transport=sse \
+  --port=8000 \
+  --businessmap-url=https://sua-empresa.kanbanize.com \
+  --businessmap-apikey=sua_api_key
 ```
 
 ### Argumentos Opcionais

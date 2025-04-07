@@ -11,4 +11,6 @@ client:
           command: npx
           args:
             - "-y"
-            - "mcp-businessmap" 
+            - "mcp-businessmap"
+            - "--transport=sse"
+            - "--port=8000" 
