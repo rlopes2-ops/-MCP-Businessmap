@@ -37,5 +37,8 @@
     "url": "git+https://github.com/rlopes2-ops/-MCP-Businessmap.git"
   },
   "author": "rlopes2-ops",
-  "license": "MIT"
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  }
 } 
