@@ -1,0 +1,54 @@
+name: Publish to npm
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*' # Execute quando uma tag começando com 'v' for criada
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          registry-url: 'https://registry.npmjs.org/'
+
+      - name: Install dependencies
+        run: npm ci || npm install
+
+      - name: Set package version from tag (if available)
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          TAG=${GITHUB_REF#refs/tags/v}
+          npm version $TAG --no-git-tag-version
+          echo "Publishing version $TAG"
+
+      - name: Add npmignore file
+        run: |
+          echo "# Git files" > .npmignore
+          echo ".git/" >> .npmignore
+          echo ".github/" >> .npmignore
+          echo ".gitignore" >> .npmignore
+          echo "# Python files" >> .npmignore
+          echo "__pycache__/" >> .npmignore
+          echo "*.py[cod]" >> .npmignore
+          echo "*.so" >> .npmignore
+          echo "*.egg-info/" >> .npmignore
+          echo ".pytest_cache/" >> .npmignore
+          echo "# Test files" >> .npmignore
+          echo "tests/" >> .npmignore
+          echo "# Development files" >> .npmignore
+          echo "*.log" >> .npmignore
+          echo ".env" >> .npmignore
+
+      - name: Publish to npm
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} 

@@ -232,7 +232,26 @@ npm link  # Para testar localmente
 
 ## Publicação no npm
 
-Para publicar uma nova versão:
+Este pacote é publicado automaticamente no npm através de GitHub Actions. O processo funciona da seguinte forma:
+
+1. **Push para branch main**: Sempre que ocorre um push para a branch main, o GitHub Actions executa o workflow de publicação.
+
+2. **Criação de tag**: Para criar uma versão específica, crie e faça push de uma tag no formato `v1.0.0`:
+   ```bash
+   git tag v1.0.0
+   git push origin v1.0.0
+   ```
+
+3. **Configuração necessária**: Para que a publicação automática funcione, você precisa adicionar um segredo chamado `NPM_TOKEN` nas configurações do repositório no GitHub:
+   - Vá para o repositório no GitHub
+   - Acesse "Settings" > "Secrets and variables" > "Actions"
+   - Clique em "New repository secret"
+   - Nome: `NPM_TOKEN`
+   - Valor: Token de acesso do npm (gere um em npmjs.com > Account > Access Tokens)
+
+### Publicação manual (alternativa)
+
+Para publicar manualmente (se tiver npm instalado):
 
 ```bash
 npm login
