@@ -1,11 +1,13 @@
-FROM python:3.9-slim
+FROM node:18-slim
 
 WORKDIR /app
 
-COPY . /app/
+COPY package*.json ./
+RUN npm install
 
-RUN pip install --no-cache-dir -e .
+COPY . .
+RUN npm run build
 
 EXPOSE 8000
 
-ENTRYPOINT ["mcp-businessmap"] 
+CMD ["node", "dist/index.js", "--transport=sse", "--port=8000"] 

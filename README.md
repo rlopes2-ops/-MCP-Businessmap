@@ -8,50 +8,51 @@ MCP Server para busca e gerenciamento de cards no Businessmap (Kanbanize).
    * Busca cards no Businessmap
    * Entrada Obrigatória: `query` (string)
    * Entradas Opcionais:
-     * `board_id` (number)
-     * `column_id` (number)
-     * `limit` (number)
-     * `sort_by` (string)
-     * `sort_direction` (string)
+     * `board_ids` (string) - IDs de boards separados por vírgula
+     * `max_results` (number)
    * Retorna: Array de cards com detalhes como título, descrição, status, etc.
 
 2. `businessmap_get_card`
    * Obtém detalhes de um card específico
-   * Entrada Obrigatória: `card_id` (number)
+   * Entrada Obrigatória: `card_id` (string)
    * Retorna: Informações detalhadas sobre o card, incluindo histórico, comentários, anexos, etc.
 
 3. `businessmap_create_card`
    * Cria um novo card
    * Entradas Obrigatórias:
-     * `board_id` (number)
+     * `board_id` (string)
+     * `workflow_id` (string)
+     * `lane_id` (string)
+     * `column_id` (string)
      * `title` (string)
    * Entradas Opcionais:
      * `description` (string)
-     * `column_id` (number)
      * `priority` (string)
-     * `tags` (array)
+     * `assignee_ids` (string) - IDs de pessoas separados por vírgula
    * Retorna: Informações do card criado
 
 4. `businessmap_update_card`
    * Atualiza um card existente
-   * Entrada Obrigatória: `card_id` (number)
+   * Entrada Obrigatória: `card_id` (string)
    * Entradas Opcionais:
      * `title` (string)
      * `description` (string)
-     * `column_id` (number)
+     * `column_id` (string)
+     * `lane_id` (string)
      * `priority` (string)
+     * `assignee_ids` (string) - IDs de pessoas separados por vírgula
    * Retorna: Informações do card atualizado
 
 5. `businessmap_delete_card`
    * Exclui um card existente
-   * Entrada Obrigatória: `card_id` (number)
+   * Entrada Obrigatória: `card_id` (string)
    * Retorna: Status da operação
 
 6. `businessmap_add_comment`
    * Adiciona um comentário a um card
    * Entradas Obrigatórias:
-     * `card_id` (number)
-     * `comment` (string)
+     * `card_id` (string)
+     * `text` (string)
    * Retorna: Informações do comentário adicionado
 
 ## Funcionalidades
@@ -61,6 +62,7 @@ MCP Server para busca e gerenciamento de cards no Businessmap (Kanbanize).
 * Retorna dados JSON estruturados
 * Filtragem por quadros específicos
 * Configuração via variáveis de ambiente ou linha de comando
+* Implementado em TypeScript/Node.js para máxima compatibilidade
 
 ## Setup
 
@@ -141,8 +143,7 @@ Para usar o MCP-Businessmap com N8N:
      ```
      -y
      mcp-businessmap
-     --transport=sse
-     --port=8000
+     --transport=stdio
      --businessmap-url=https://sua-instancia.kanbanize.com
      --businessmap-apikey=SUA_API_KEY
      ```
@@ -171,19 +172,6 @@ Para instalar mcp-businessmap para Claude Desktop automaticamente via Smithery:
 
 ```bash
 npx -y @smithery/cli install mcp-businessmap --client claude
-```
-
-### Instalação Manual
-
-```bash
-# Usando pip
-pip install mcp-businessmap
-
-# Usando Docker
-git clone https://github.com/rlopes2-ops/-MCP-Businessmap.git
-cd MCP-Businessmap
-docker build -t mcp/businessmap .
-docker run -p 8000:8000 mcp/businessmap --transport=sse --port=8000 --businessmap-url=https://sua-instancia.kanbanize.com --businessmap-apikey=SUA_API_KEY
 ```
 
 ## Configuração e Uso
@@ -223,11 +211,16 @@ git clone https://github.com/rlopes2-ops/-MCP-Businessmap.git
 cd MCP-Businessmap
 
 # Instalando dependências
-pip install -e .
-
-# Para desenvolvimento do pacote npm
 npm install
-npm link  # Para testar localmente
+
+# Compilando TypeScript
+npm run build
+
+# Para desenvolvimento (com hot reload)
+npm run dev
+
+# Para testar localmente
+npm link
 ```
 
 ## Publicação no npm

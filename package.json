@@ -2,16 +2,16 @@
   "name": "mcp-businessmap",
   "version": "1.0.0",
   "description": "MCP Server para Businessmap (Kanbanize)",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "bin": {
-  "mcp-businessmap": "./bin/mcp-businessmap.js"
-  },
-  "dependencies": {
-    "cross-spawn": "^7.0.3"
+    "mcp-businessmap": "dist/index.js"
   },
   "scripts": {
-    "start": "node ./bin/mcp-businessmap.js",
-    "test": "echo \"No tests specified\"",
-    "prepare": "echo \"Preparing package for publication\""
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "build": "tsc",
+    "prepare": "npm run build"
   },
   "keywords": [
     "mcp",
@@ -22,7 +22,7 @@
     "n8n"
   ],
   "files": [
-    "bin",
+    "dist",
     "README.md",
     "LICENSE"
   ],
@@ -35,5 +35,18 @@
   "license": "MIT",
   "engines": {
     "node": ">=14.0.0"
+  },
+  "dependencies": {
+    "@mcp/protocol": "^0.3.4",
+    "@mcp/server": "^0.3.6",
+    "axios": "^1.6.7",
+    "dotenv": "^16.4.1",
+    "minimist": "^1.2.8"
+  },
+  "devDependencies": {
+    "@types/minimist": "^1.2.5",
+    "@types/node": "^20.11.16",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
   }
 }

@@ -13,4 +13,6 @@ client:
             - "-y"
             - "mcp-businessmap"
             - "--transport=sse"
-            - "--port=8000" 
+            - "--port=8000"
+            - "--businessmap-url=${BUSINESSMAP_URL}"
+            - "--businessmap-apikey=${BUSINESSMAP_APIKEY}" 

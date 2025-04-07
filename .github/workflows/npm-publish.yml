@@ -21,7 +21,10 @@ jobs:
           registry-url: 'https://registry.npmjs.org/'
 
       - name: Install dependencies
-        run: npm install --no-package-lock
+        run: npm install
+
+      - name: Build TypeScript
+        run: npm run build
 
       - name: Set package version from tag (if available)
         if: startsWith(github.ref, 'refs/tags/v')
@@ -36,17 +39,17 @@ jobs:
           echo ".git/" >> .npmignore
           echo ".github/" >> .npmignore
           echo ".gitignore" >> .npmignore
-          echo "# Python files" >> .npmignore
-          echo "__pycache__/" >> .npmignore
-          echo "*.py[cod]" >> .npmignore
-          echo "*.so" >> .npmignore
-          echo "*.egg-info/" >> .npmignore
-          echo ".pytest_cache/" >> .npmignore
+          echo "# Source files" >> .npmignore
+          echo "src/" >> .npmignore
+          echo "# Config files" >> .npmignore
+          echo "tsconfig.json" >> .npmignore
+          echo ".eslintrc.js" >> .npmignore
           echo "# Test files" >> .npmignore
           echo "tests/" >> .npmignore
           echo "# Development files" >> .npmignore
           echo "*.log" >> .npmignore
           echo ".env" >> .npmignore
+          echo ".env.example" >> .npmignore
 
       - name: Create .npmrc file
         run: |
