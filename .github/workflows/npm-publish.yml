@@ -48,6 +48,12 @@ jobs:
           echo "*.log" >> .npmignore
           echo ".env" >> .npmignore
 
+      - name: Create .npmrc file
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > .npmrc
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
       - name: List files to be published
         run: npm pack --dry-run
 
