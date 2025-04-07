@@ -13,15 +13,20 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          ref: ${{ github.ref }}
 
-      - name: Set up Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
           registry-url: 'https://registry.npmjs.org/'
 
+      - name: Debug package.json
+        run: cat package.json
+
       - name: Install dependencies
-        run: npm install
+        run: npm ci || npm install
 
       - name: Build TypeScript
         run: npm run build
@@ -33,23 +38,11 @@ jobs:
           npm version $TAG --no-git-tag-version
           echo "Publishing version $TAG"
 
-      - name: Add npmignore file
+      - name: List files for debugging
         run: |
-          echo "# Git files" > .npmignore
-          echo ".git/" >> .npmignore
-          echo ".github/" >> .npmignore
-          echo ".gitignore" >> .npmignore
-          echo "# Source files" >> .npmignore
-          echo "src/" >> .npmignore
-          echo "# Config files" >> .npmignore
-          echo "tsconfig.json" >> .npmignore
-          echo ".eslintrc.js" >> .npmignore
-          echo "# Test files" >> .npmignore
-          echo "tests/" >> .npmignore
-          echo "# Development files" >> .npmignore
-          echo "*.log" >> .npmignore
-          echo ".env" >> .npmignore
-          echo ".env.example" >> .npmignore
+          ls -la
+          ls -la src || true
+          ls -la dist || true
 
       - name: Create .npmrc file
         run: |
