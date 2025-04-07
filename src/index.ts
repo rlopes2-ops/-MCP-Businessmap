@@ -65,8 +65,19 @@ if (config.readOnly) {
   console.log('Running in READ-ONLY mode - all write operations are disabled');
 }
 
+// Definir interface para as ferramentas
+interface Tool {
+  description: string;
+  parameters: {
+    type: string;
+    properties: Record<string, any>;
+    required: string[];
+  };
+  handler: (params: any) => Promise<any>;
+}
+
 // Definição das ferramentas e seus parâmetros
-const tools = {
+const tools: Record<string, Tool> = {
   businessmap_search: {
     description: 'Search for cards in Businessmap',
     parameters: {
@@ -253,16 +264,17 @@ async function handleJsonRpcRequest(request: any) {
     } 
     else if (method === 'mcp.invoke_tool') {
       // Invocar uma ferramenta específica
-      const toolName = request.params?.tool;
+      const toolName = request.params?.tool as string;
       const toolParams = request.params?.params || {};
       
       // Verificar se a ferramenta existe
-      if (!tools[toolName]) {
+      if (!toolName || !tools[toolName]) {
         throw { code: -32601, message: `Tool '${toolName}' not found` };
       }
       
       // Executar a ferramenta
-      response.result = await tools[toolName].handler(toolParams);
+      const tool = tools[toolName];
+      response.result = await tool.handler(toolParams);
     }
     else {
       // Método desconhecido
