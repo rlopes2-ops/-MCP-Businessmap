@@ -3,7 +3,8 @@
 import path from 'path';
 import * as dotenv from 'dotenv';
 import minimist from 'minimist';
-import { createServer } from '@mcp/server';
+import express from 'express';
+import { StdioServer, SseServer, Schema, Resource, Parameter } from 'modelcontextprotocol';
 import { BusinessmapClient } from './businessmap-client';
 import { BusinessmapConfig } from './types';
 
@@ -64,161 +65,141 @@ if (config.readOnly) {
   console.log('Running in READ-ONLY mode - all write operations are disabled');
 }
 
-// Definir schema MCP
-const schema = {
-  tools: {
-    // Busca cards no Businessmap
-    businessmap_search: {
-      description: 'Search for cards in Businessmap',
-      parameters: {
-        query: { type: 'string', description: 'Text to search for' },
-        board_ids: { type: 'string', description: 'Comma-separated list of board IDs to search in', optional: true },
-        max_results: { type: 'integer', description: 'Maximum number of results to return', optional: true }
-      },
-      handler: async ({ query, board_ids, max_results }: any) => {
-        try {
-          const boardIds = board_ids ? board_ids.split(',') : undefined;
-          return await businessmapClient.searchCards({ 
-            query, 
-            boardIds, 
-            maxResults: max_results ? parseInt(max_results) : undefined 
-          });
-        } catch (error: any) {
-          console.error('Error in businessmap_search:', error.message);
-          return { error: error.message };
-        }
-      }
-    },
-    
-    // Obter detalhes de um card específico
-    businessmap_get_card: {
-      description: 'Get a specific card from Businessmap by ID',
-      parameters: {
-        card_id: { type: 'string', description: 'Card ID to retrieve' }
-      },
-      handler: async ({ card_id }: any) => {
-        try {
-          return await businessmapClient.getCard(card_id);
-        } catch (error: any) {
-          console.error('Error in businessmap_get_card:', error.message);
-          return { error: error.message };
-        }
-      }
-    },
-    
-    // Criar um novo card
-    businessmap_create_card: {
-      description: 'Create a new card in Businessmap',
-      parameters: {
-        board_id: { type: 'string', description: 'Board ID' },
-        workflow_id: { type: 'string', description: 'Workflow ID' },
-        lane_id: { type: 'string', description: 'Lane ID' },
-        column_id: { type: 'string', description: 'Column ID' },
-        title: { type: 'string', description: 'Card title' },
-        description: { type: 'string', description: 'Card description', optional: true },
-        priority: { type: 'string', description: 'Card priority', optional: true },
-        assignee_ids: { type: 'string', description: 'Comma-separated list of assignee IDs', optional: true }
-      },
-      handler: async ({ board_id, workflow_id, lane_id, column_id, title, description, priority, assignee_ids }: any) => {
-        try {
-          const assigneeIdsList = assignee_ids ? assignee_ids.split(',') : undefined;
-          return await businessmapClient.createCard({
-            boardId: board_id,
-            workflowId: workflow_id,
-            laneId: lane_id,
-            columnId: column_id,
-            title,
-            description,
-            priority,
-            assigneeIds: assigneeIdsList
-          });
-        } catch (error: any) {
-          console.error('Error in businessmap_create_card:', error.message);
-          return { error: error.message };
-        }
-      }
-    },
-    
-    // Atualizar um card existente
-    businessmap_update_card: {
-      description: 'Update an existing card in Businessmap',
-      parameters: {
-        card_id: { type: 'string', description: 'Card ID to update' },
-        title: { type: 'string', description: 'New card title', optional: true },
-        description: { type: 'string', description: 'New card description', optional: true },
-        column_id: { type: 'string', description: 'New column ID', optional: true },
-        lane_id: { type: 'string', description: 'New lane ID', optional: true },
-        priority: { type: 'string', description: 'New priority', optional: true },
-        assignee_ids: { type: 'string', description: 'Comma-separated list of new assignee IDs', optional: true }
-      },
-      handler: async ({ card_id, title, description, column_id, lane_id, priority, assignee_ids }: any) => {
-        try {
-          const assigneeIdsList = assignee_ids ? assignee_ids.split(',') : undefined;
-          return await businessmapClient.updateCard({
-            cardId: card_id,
-            title,
-            description,
-            columnId: column_id,
-            laneId: lane_id,
-            priority,
-            assigneeIds: assigneeIdsList
-          });
-        } catch (error: any) {
-          console.error('Error in businessmap_update_card:', error.message);
-          return { error: error.message };
-        }
-      }
-    },
-    
-    // Excluir um card
-    businessmap_delete_card: {
-      description: 'Delete a card from Businessmap',
-      parameters: {
-        card_id: { type: 'string', description: 'Card ID to delete' }
-      },
-      handler: async ({ card_id }: any) => {
-        try {
-          return await businessmapClient.deleteCard(card_id);
-        } catch (error: any) {
-          console.error('Error in businessmap_delete_card:', error.message);
-          return { error: error.message };
-        }
-      }
-    },
-    
-    // Adicionar comentário a um card
-    businessmap_add_comment: {
-      description: 'Add a comment to a card in Businessmap',
-      parameters: {
-        card_id: { type: 'string', description: 'Card ID' },
-        text: { type: 'string', description: 'Comment text' }
-      },
-      handler: async ({ card_id, text }: any) => {
-        try {
-          return await businessmapClient.addComment(card_id, text);
-        } catch (error: any) {
-          console.error('Error in businessmap_add_comment:', error.message);
-          return { error: error.message };
-        }
-      }
-    }
+// Criar schema MCP
+const schema = new Schema();
+
+// Define tools
+@schema.tool
+async function businessmap_search(
+  query: string = Parameter.describe("Text to search for"),
+  board_ids: string | undefined = Parameter.describe("Comma-separated list of board IDs to search in").optional(),
+  max_results: number = Parameter.describe("Maximum number of results to return").optional(50),
+) {
+  try {
+    const boardIds = board_ids ? board_ids.split(',') : undefined;
+    return await businessmapClient.searchCards({ 
+      query, 
+      boardIds, 
+      maxResults: max_results 
+    });
+  } catch (error: any) {
+    console.error('Error in businessmap_search:', error.message);
+    return { error: error.message };
   }
-};
+}
+
+@schema.tool
+async function businessmap_get_card(
+  card_id: string = Parameter.describe("Card ID to retrieve"),
+) {
+  try {
+    return await businessmapClient.getCard(card_id);
+  } catch (error: any) {
+    console.error('Error in businessmap_get_card:', error.message);
+    return { error: error.message };
+  }
+}
+
+@schema.tool
+async function businessmap_create_card(
+  board_id: string = Parameter.describe("Board ID"),
+  workflow_id: string = Parameter.describe("Workflow ID"),
+  lane_id: string = Parameter.describe("Lane ID"),
+  column_id: string = Parameter.describe("Column ID"),
+  title: string = Parameter.describe("Card title"),
+  description: string | undefined = Parameter.describe("Card description").optional(),
+  priority: string | undefined = Parameter.describe("Card priority").optional(),
+  assignee_ids: string | undefined = Parameter.describe("Comma-separated list of assignee IDs").optional(),
+) {
+  try {
+    const assigneeIdsList = assignee_ids ? assignee_ids.split(',') : undefined;
+    return await businessmapClient.createCard({
+      boardId: board_id,
+      workflowId: workflow_id,
+      laneId: lane_id,
+      columnId: column_id,
+      title,
+      description,
+      priority,
+      assigneeIds: assigneeIdsList
+    });
+  } catch (error: any) {
+    console.error('Error in businessmap_create_card:', error.message);
+    return { error: error.message };
+  }
+}
+
+@schema.tool
+async function businessmap_update_card(
+  card_id: string = Parameter.describe("Card ID to update"),
+  title: string | undefined = Parameter.describe("New card title").optional(),
+  description: string | undefined = Parameter.describe("New card description").optional(),
+  column_id: string | undefined = Parameter.describe("New column ID").optional(),
+  lane_id: string | undefined = Parameter.describe("New lane ID").optional(),
+  priority: string | undefined = Parameter.describe("New priority").optional(),
+  assignee_ids: string | undefined = Parameter.describe("Comma-separated list of new assignee IDs").optional(),
+) {
+  try {
+    const assigneeIdsList = assignee_ids ? assignee_ids.split(',') : undefined;
+    return await businessmapClient.updateCard({
+      cardId: card_id,
+      title,
+      description,
+      columnId: column_id,
+      laneId: lane_id,
+      priority,
+      assigneeIds: assigneeIdsList
+    });
+  } catch (error: any) {
+    console.error('Error in businessmap_update_card:', error.message);
+    return { error: error.message };
+  }
+}
+
+@schema.tool
+async function businessmap_delete_card(
+  card_id: string = Parameter.describe("Card ID to delete"),
+) {
+  try {
+    return await businessmapClient.deleteCard(card_id);
+  } catch (error: any) {
+    console.error('Error in businessmap_delete_card:', error.message);
+    return { error: error.message };
+  }
+}
+
+@schema.tool
+async function businessmap_add_comment(
+  card_id: string = Parameter.describe("Card ID"),
+  text: string = Parameter.describe("Comment text"),
+) {
+  try {
+    return await businessmapClient.addComment(card_id, text);
+  } catch (error: any) {
+    console.error('Error in businessmap_add_comment:', error.message);
+    return { error: error.message };
+  }
+}
 
 // Iniciar o servidor MCP
 const startServer = async () => {
-  const server = createServer(schema);
-  
-  if (argv.transport === 'stdio') {
-    // Usar transporte stdio
-    await server.run();
-  } else if (argv.transport === 'sse') {
-    // Usar transporte SSE
-    const port = parseInt(argv.port);
-    await server.listen(port);
-    console.log(`MCP server listening on port ${port}`);
-  } else {
-    console.error(`Unsupported transport: ${argv.transport}`);
+  try {
+    if (argv.transport === 'stdio') {
+      // Usar transporte stdio
+      const server = new StdioServer(schema);
+      await server.run();
+    } else if (argv.transport === 'sse') {
+      // Usar transporte SSE
+      const port = parseInt(argv.port);
+      const server = new SseServer(schema);
+      await server.listen(port);
+      console.log(`MCP server listening on port ${port}`);
+    } else {
+      console.error(`Unsupported transport: ${argv.transport}`);
+      process.exit(1);
+    }
+  } catch (error) {
+    console.error('Failed to start MCP server:', error);
     process.exit(1);
   }
 };
