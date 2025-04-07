@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "MCP Server para Businessmap (Kanbanize)",
   "bin": {
-    "mcp-businessmap": "./bin/mcp-businessmap.js"
+  "mcp-businessmap": "./bin/mcp-businessmap.js"
   },
   "dependencies": {
     "cross-spawn": "^7.0.3"
