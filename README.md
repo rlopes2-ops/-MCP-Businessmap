@@ -64,9 +64,25 @@ MCP Server para busca e gerenciamento de cards no Businessmap (Kanbanize).
 
 ## Setup
 
+### Instalação via npm (Recomendado)
+
+```bash
+# Instalar globalmente
+npm install -g mcp-businessmap
+
+# Executar o servidor
+mcp-businessmap --transport=sse --port=8000 --businessmap-url=https://sua-empresa.kanbanize.com --businessmap-apikey=sua_api_key
+```
+
+Ou use-o diretamente via npx:
+
+```bash
+npx mcp-businessmap --transport=sse --port=8000 --businessmap-url=https://sua-empresa.kanbanize.com --businessmap-apikey=sua_api_key
+```
+
 ### Instalando no Claude Desktop
 
-Antes de começar, certifique-se de que o Python 3.7+ está instalado em seu desktop.
+Antes de começar, certifique-se de que o Node.js está instalado em seu desktop.
 
 1. Vá para: Configurações > Desenvolvedor > Editar Configuração
 2. Adicione o seguinte ao seu `claude_desktop_config.json`:
@@ -132,6 +148,16 @@ Para usar o MCP-Businessmap com N8N:
 
 **IMPORTANTE**: Certifique-se de que cada argumento esteja em uma linha separada, conforme mostrado acima.
 
+Alternativamente, você pode iniciar o servidor separadamente e configurar o N8N para se conectar a ele:
+
+1. Inicie o servidor em uma máquina acessível pela rede:
+```bash
+npx mcp-businessmap --transport=sse --port=8000 --businessmap-url=https://sua-empresa.kanbanize.com --businessmap-apikey=sua_api_key
+```
+
+2. No N8N, use a opção "MCP Client (MCP Server)" em vez de "MCP Client (STDIO) API":
+   - URL: `http://IP-DA-MÁQUINA:8000`
+
 Para solucionar problemas de conexão, você pode adicionar o argumento `--verbose` para obter mais informações de depuração.
 
 ### Outra Opção: Instalando via Smithery
@@ -186,8 +212,18 @@ cd MCP-Businessmap
 # Instalando dependências
 pip install -e .
 
-# Executando testes
-pytest
+# Para desenvolvimento do pacote npm
+npm install
+npm link  # Para testar localmente
+```
+
+## Publicação no npm
+
+Para publicar uma nova versão:
+
+```bash
+npm login
+npm publish
 ```
 
 ## Licença

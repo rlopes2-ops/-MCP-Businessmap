@@ -1,0 +1,41 @@
+{
+  "name": "mcp-businessmap",
+  "version": "1.0.0",
+  "description": "MCP Server para Businessmap (Kanbanize)",
+  "bin": {
+    "mcp-businessmap": "./bin/mcp-businessmap.js"
+  },
+  "dependencies": {
+    "cross-spawn": "^7.0.3"
+  },
+  "devDependencies": {
+    "nps": "^5.10.0",
+    "nps-utils": "^1.7.0"
+  },
+  "scripts": {
+    "start": "node ./bin/mcp-businessmap.js",
+    "test": "nps test",
+    "build": "nps build",
+    "prepare": "nps prepare"
+  },
+  "keywords": [
+    "mcp",
+    "businessmap",
+    "kanbanize",
+    "claude",
+    "ai",
+    "n8n"
+  ],
+  "files": [
+    "bin",
+    "README.md",
+    "LICENSE"
+  ],
+  "homepage": "https://github.com/rlopes2-ops/-MCP-Businessmap",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rlopes2-ops/-MCP-Businessmap.git"
+  },
+  "author": "rlopes2-ops",
+  "license": "MIT"
+} 
