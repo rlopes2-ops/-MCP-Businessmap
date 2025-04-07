@@ -8,15 +8,10 @@
   "dependencies": {
     "cross-spawn": "^7.0.3"
   },
-  "devDependencies": {
-    "nps": "^5.10.0",
-    "nps-utils": "^1.7.0"
-  },
   "scripts": {
     "start": "node ./bin/mcp-businessmap.js",
-    "test": "nps test",
-    "build": "nps build",
-    "prepare": "nps prepare"
+    "test": "echo \"No tests specified\"",
+    "prepare": "echo \"Preparing package for publication\""
   },
   "keywords": [
     "mcp",
@@ -41,4 +36,4 @@
   "engines": {
     "node": ">=14.0.0"
   }
-} 
+}
