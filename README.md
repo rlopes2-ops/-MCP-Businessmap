@@ -70,14 +70,15 @@ MCP Server para busca e gerenciamento de cards no Businessmap (Kanbanize).
 # Instalar globalmente
 npm install -g mcp-businessmap
 
-# Executar o servidor
-mcp-businessmap --transport=sse --port=8000 --businessmap-url=https://sua-empresa.kanbanize.com --businessmap-apikey=sua_api_key
+# Executar o servidor (substitua os valores pelas suas credenciais)
+mcp-businessmap --transport=sse --port=8000 --businessmap-url=https://sua-instancia.kanbanize.com --businessmap-apikey=SUA_API_KEY
 ```
 
 Ou use-o diretamente via npx:
 
 ```bash
-npx mcp-businessmap --transport=sse --port=8000 --businessmap-url=https://sua-empresa.kanbanize.com --businessmap-apikey=sua_api_key
+# Substitua os valores com suas credenciais
+npx mcp-businessmap --transport=sse --port=8000 --businessmap-url=https://sua-instancia.kanbanize.com --businessmap-apikey=SUA_API_KEY
 ```
 
 ### Instalando no Claude Desktop
@@ -97,8 +98,8 @@ Antes de começar, certifique-se de que o Node.js está instalado em seu desktop
         "mcp-businessmap",
         "--transport=sse",
         "--port=8000",
-        "--businessmap-url=https://sua-empresa.kanbanize.com",
-        "--businessmap-apikey=sua_api_key"
+        "--businessmap-url=https://sua-instancia.kanbanize.com",
+        "--businessmap-apikey=SUA_API_KEY"
       ]
     }
   }
@@ -117,8 +118,8 @@ Para modo somente leitura, use esta versão com `--read-only`:
         "mcp-businessmap",
         "--transport=sse",
         "--port=8000",
-        "--businessmap-url=https://sua-empresa.kanbanize.com",
-        "--businessmap-apikey=sua_api_key",
+        "--businessmap-url=https://sua-instancia.kanbanize.com",
+        "--businessmap-apikey=SUA_API_KEY",
         "--read-only"
       ]
     }
@@ -142,17 +143,21 @@ Para usar o MCP-Businessmap com N8N:
      mcp-businessmap
      --transport=sse
      --port=8000
-     --businessmap-url=https://sua-empresa.kanbanize.com
-     --businessmap-apikey=sua_api_key
+     --businessmap-url=https://sua-instancia.kanbanize.com
+     --businessmap-apikey=SUA_API_KEY
      ```
 
-**IMPORTANTE**: Certifique-se de que cada argumento esteja em uma linha separada, conforme mostrado acima.
+**IMPORTANTE**: 
+- Certifique-se de que cada argumento esteja em uma linha separada, conforme mostrado acima.
+- Substitua "https://sua-instancia.kanbanize.com" pela URL do seu Businessmap
+- Substitua "SUA_API_KEY" pela sua chave de API do Businessmap
+- Por segurança, considere usar variáveis de ambiente para armazenar sua chave de API
 
 Alternativamente, você pode iniciar o servidor separadamente e configurar o N8N para se conectar a ele:
 
 1. Inicie o servidor em uma máquina acessível pela rede:
 ```bash
-npx mcp-businessmap --transport=sse --port=8000 --businessmap-url=https://sua-empresa.kanbanize.com --businessmap-apikey=sua_api_key
+npx mcp-businessmap --transport=sse --port=8000 --businessmap-url=https://sua-instancia.kanbanize.com --businessmap-apikey=SUA_API_KEY
 ```
 
 2. No N8N, use a opção "MCP Client (MCP Server)" em vez de "MCP Client (STDIO) API":
@@ -178,7 +183,7 @@ pip install mcp-businessmap
 git clone https://github.com/rlopes2-ops/-MCP-Businessmap.git
 cd MCP-Businessmap
 docker build -t mcp/businessmap .
-docker run -p 8000:8000 mcp/businessmap --transport=sse --port=8000 --businessmap-url=https://sua-empresa.kanbanize.com --businessmap-apikey=sua_api_key
+docker run -p 8000:8000 mcp/businessmap --transport=sse --port=8000 --businessmap-url=https://sua-instancia.kanbanize.com --businessmap-apikey=SUA_API_KEY
 ```
 
 ## Configuração e Uso
@@ -189,8 +194,8 @@ Você pode configurar o servidor MCP usando argumentos de linha de comando:
 mcp-businessmap \
   --transport=sse \
   --port=8000 \
-  --businessmap-url=https://sua-empresa.kanbanize.com \
-  --businessmap-apikey=sua_api_key
+  --businessmap-url=https://sua-instancia.kanbanize.com \
+  --businessmap-apikey=SUA_API_KEY
 ```
 
 ### Argumentos Opcionais
@@ -201,6 +206,14 @@ mcp-businessmap \
 - `--businessmap-boards-filter`: Lista separada por vírgulas de IDs de quadros para filtrar resultados
 - `--read-only`: Executar em modo somente leitura (desativa todas as operações de escrita)
 - `--verbose`: Aumentar verbosidade de log
+
+## Segurança
+
+**IMPORTANTE**: Nunca compartilhe sua chave de API do Businessmap em código-fonte público ou repositórios. Prefira usar:
+
+1. Variáveis de ambiente
+2. Arquivos de configuração que não são versionados (.env)
+3. Segredos gerenciados pelo seu serviço de hospedagem
 
 ## Build (para desenvolvedores)
 

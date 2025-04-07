@@ -4,8 +4,19 @@ const spawn = require('cross-spawn');
 const path = require('path');
 const fs = require('fs');
 
+// AVISO: Nunca inclua dados sensíveis como chaves de API diretamente no código
+// Use variáveis de ambiente ou arquivos de configuração separados
+
 // Obtém argumentos da linha de comando
 const args = process.argv.slice(2);
+
+// Verificação básica de segurança para evitar exposição de chaves de API no histórico
+args.forEach((arg, index) => {
+  if ((arg.includes('--businessmap-apikey=') || arg === '--businessmap-apikey') && args[index + 1] && args[index + 1].length > 10) {
+    console.warn('\x1b[33m%s\x1b[0m', 'AVISO DE SEGURANÇA: Você está passando uma chave de API diretamente na linha de comando.');
+    console.warn('\x1b[33m%s\x1b[0m', 'Considere usar variáveis de ambiente para proteger suas credenciais.');
+  }
+});
 
 // Verifica se o Python está instalado
 try {
