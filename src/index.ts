@@ -3,6 +3,7 @@
 import * as dotenv from 'dotenv';
 import minimist from 'minimist';
 import express from 'express';
+import cors from 'cors';
 import http from 'http';
 import { createReadStream, createWriteStream } from 'fs';
 import { BusinessmapClient } from './businessmap-client';
@@ -14,10 +15,11 @@ dotenv.config();
 // Processar argumentos da linha de comando
 const argv = minimist(process.argv.slice(2), {
   boolean: ['verbose', 'read-only', 'businessmap-ssl-verify'],
-  string: ['transport', 'port', 'businessmap-url', 'businessmap-apikey', 'businessmap-boards-filter'],
+  string: ['transport', 'port', 'businessmap-url', 'businessmap-apikey', 'businessmap-boards-filter', 'host'],
   default: {
     transport: 'stdio',
     port: '8000',
+    host: '0.0.0.0', // Listen on all interfaces by default
     verbose: false,
     'read-only': false,
     'businessmap-ssl-verify': true
@@ -25,7 +27,8 @@ const argv = minimist(process.argv.slice(2), {
   alias: {
     v: 'verbose',
     t: 'transport',
-    p: 'port'
+    p: 'port',
+    h: 'host'
   }
 });
 
@@ -360,28 +363,51 @@ async function startServer() {
       // Transporte Server-Sent Events (SSE)
       const app = express();
       const port = parseInt(argv.port);
+      const host = argv.host;
       
       // Middleware para processar JSON
       app.use(express.json());
       
+      // Adicionar middleware CORS
+      app.use(cors({
+        origin: '*',
+        methods: ['GET', 'POST', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization']
+      }));
+      
+      // Opções para CORS preflight
+      app.options('*', cors());
+      
       // Endpoint para envio de eventos
       app.get('/sse', (req, res) => {
-        const headers = {
-          'Content-Type': 'text/event-stream',
-          'Connection': 'keep-alive',
-          'Cache-Control': 'no-cache'
-        };
-        res.writeHead(200, headers);
+        // Log de conexão recebida
+        console.log('SSE connection received from:', req.ip);
         
-        // Enviar evento de boas-vindas
+        // Headers SSE corretos
+        res.setHeader('Content-Type', 'text/event-stream');
+        res.setHeader('Connection', 'keep-alive');
+        res.setHeader('Cache-Control', 'no-cache');
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        
+        // Status 200 para iniciar o stream
+        res.status(200);
+        
+        // Enviar evento de conexão
         res.write('event: connected\ndata: {}\n\n');
         
         // Adicionar cliente à lista
         const clientId = Date.now();
         sseClients.set(clientId, res);
         
+        // Manter conexão com heartbeat
+        const heartbeat = setInterval(() => {
+          res.write(':\n\n');
+        }, 30000);
+        
         // Remover cliente quando a conexão for fechada
         req.on('close', () => {
+          console.log('SSE connection closed for client:', clientId);
+          clearInterval(heartbeat);
           sseClients.delete(clientId);
         });
       });
@@ -400,9 +426,11 @@ async function startServer() {
       // Endpoint JSON-RPC
       app.post('/json-rpc', async (req, res) => {
         try {
+          console.log('JSON-RPC request received:', req.ip);
           const response = await handleJsonRpcRequest(req.body);
           res.json(response);
         } catch (error: any) {
+          console.error('Error handling JSON-RPC request:', error);
           res.status(500).json({
             jsonrpc: '2.0',
             error: {
@@ -414,9 +442,14 @@ async function startServer() {
         }
       });
       
+      // Endpoint de verificação de saúde
+      app.get('/health', (req, res) => {
+        res.status(200).json({ status: 'ok' });
+      });
+      
       // Iniciar servidor HTTP
-      app.listen(port, () => {
-        console.log(`MCP server running in SSE mode on port ${port}`);
+      app.listen(port, host, () => {
+        console.log(`MCP server running in SSE mode on ${host}:${port}`);
       });
     } 
     else {

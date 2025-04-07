@@ -1,259 +1,163 @@
-# MCP Businessmap
+# MCP-Businessmap
 
-MCP Server para busca e gerenciamento de cards no Businessmap (Kanbanize).
+MCP Server para o Businessmap (Kanbanize), permitindo buscar, visualizar e gerenciar quadros e cartões.
 
 ## Ferramentas
 
-1. `businessmap_search`
-   * Busca cards no Businessmap
-   * Entrada Obrigatória: `query` (string)
-   * Entradas Opcionais:
-     * `board_ids` (string) - IDs de boards separados por vírgula
-     * `max_results` (number)
-   * Retorna: Array de cards com detalhes como título, descrição, status, etc.
+O MCP-Businessmap fornece as seguintes ferramentas para interação com o Businessmap:
 
-2. `businessmap_get_card`
-   * Obtém detalhes de um card específico
-   * Entrada Obrigatória: `card_id` (string)
-   * Retorna: Informações detalhadas sobre o card, incluindo histórico, comentários, anexos, etc.
+1. `businessmap_search`: Busca por cartões no Businessmap.
+   - Parâmetros obrigatórios:
+     - `query`: Texto para buscar
+   - Parâmetros opcionais:
+     - `board_ids`: Lista de IDs de quadros (separados por vírgula)
+     - `max_results`: Número máximo de resultados
 
-3. `businessmap_create_card`
-   * Cria um novo card
-   * Entradas Obrigatórias:
-     * `board_id` (string)
-     * `workflow_id` (string)
-     * `lane_id` (string)
-     * `column_id` (string)
-     * `title` (string)
-   * Entradas Opcionais:
-     * `description` (string)
-     * `priority` (string)
-     * `assignee_ids` (string) - IDs de pessoas separados por vírgula
-   * Retorna: Informações do card criado
+2. `businessmap_get_card`: Obtém detalhes de um cartão específico.
+   - Parâmetros obrigatórios:
+     - `card_id`: ID do cartão
 
-4. `businessmap_update_card`
-   * Atualiza um card existente
-   * Entrada Obrigatória: `card_id` (string)
-   * Entradas Opcionais:
-     * `title` (string)
-     * `description` (string)
-     * `column_id` (string)
-     * `lane_id` (string)
-     * `priority` (string)
-     * `assignee_ids` (string) - IDs de pessoas separados por vírgula
-   * Retorna: Informações do card atualizado
+3. `businessmap_create_card`: Cria um novo cartão.
+   - Parâmetros obrigatórios:
+     - `board_id`: ID do quadro
+     - `workflow_id`: ID do workflow
+     - `lane_id`: ID da lane
+     - `column_id`: ID da coluna
+     - `title`: Título do cartão
+   - Parâmetros opcionais:
+     - `description`: Descrição do cartão
+     - `priority`: Prioridade do cartão
+     - `assignee_ids`: IDs dos responsáveis (separados por vírgula)
 
-5. `businessmap_delete_card`
-   * Exclui um card existente
-   * Entrada Obrigatória: `card_id` (string)
-   * Retorna: Status da operação
+4. `businessmap_update_card`: Atualiza um cartão existente.
+   - Parâmetros obrigatórios:
+     - `card_id`: ID do cartão
+   - Parâmetros opcionais:
+     - `title`: Novo título
+     - `description`: Nova descrição
+     - `column_id`: Nova coluna
+     - `lane_id`: Nova lane
+     - `priority`: Nova prioridade
+     - `assignee_ids`: Novos responsáveis (separados por vírgula)
 
-6. `businessmap_add_comment`
-   * Adiciona um comentário a um card
-   * Entradas Obrigatórias:
-     * `card_id` (string)
-     * `text` (string)
-   * Retorna: Informações do comentário adicionado
+5. `businessmap_delete_card`: Remove um cartão.
+   - Parâmetros obrigatórios:
+     - `card_id`: ID do cartão
 
-## Funcionalidades
+6. `businessmap_add_comment`: Adiciona um comentário a um cartão.
+   - Parâmetros obrigatórios:
+     - `card_id`: ID do cartão
+     - `text`: Texto do comentário
 
-* Integração completa com a API do Businessmap (Kanbanize)
-* Suporte para modo somente leitura (--read-only)
-* Retorna dados JSON estruturados
-* Filtragem por quadros específicos
-* Configuração via variáveis de ambiente ou linha de comando
-* Implementado em TypeScript/Node.js para máxima compatibilidade
+## Requisitos
 
-## Setup
+- Node.js 14+
+- Acesso a uma instância do Businessmap/Kanbanize
+- API key do Businessmap
 
-### Instalação via npm (Recomendado)
+## Instalação
 
 ```bash
-# Instalar globalmente
 npm install -g mcp-businessmap
-
-# Executar o servidor (substitua os valores pelas suas credenciais)
-mcp-businessmap --transport=sse --port=8000 --businessmap-url=https://sua-instancia.kanbanize.com --businessmap-apikey=SUA_API_KEY
 ```
 
-Ou use-o diretamente via npx:
+## Uso
+
+### Como executável
 
 ```bash
-# Substitua os valores com suas credenciais
-npx mcp-businessmap --transport=sse --port=8000 --businessmap-url=https://sua-instancia.kanbanize.com --businessmap-apikey=SUA_API_KEY
+mcp-businessmap --transport=stdio --businessmap-url=https://your-instance.businessmap.io --businessmap-apikey=YOUR_API_KEY
 ```
 
-### Instalando no Claude Desktop
-
-Antes de começar, certifique-se de que o Node.js está instalado em seu desktop.
-
-1. Vá para: Configurações > Desenvolvedor > Editar Configuração
-2. Adicione o seguinte ao seu `claude_desktop_config.json`:
-
-```json
-{
-  "mcpServers": {
-    "businessmap": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "mcp-businessmap",
-        "--transport=sse",
-        "--port=8000",
-        "--businessmap-url=https://sua-instancia.kanbanize.com",
-        "--businessmap-apikey=SUA_API_KEY"
-      ]
-    }
-  }
-}
-```
-
-Para modo somente leitura, use esta versão com `--read-only`:
-
-```json
-{
-  "mcpServers": {
-    "businessmap": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "mcp-businessmap",
-        "--transport=sse",
-        "--port=8000",
-        "--businessmap-url=https://sua-instancia.kanbanize.com",
-        "--businessmap-apikey=SUA_API_KEY",
-        "--read-only"
-      ]
-    }
-  }
-}
-```
-
-3. Reinicie o Claude Desktop e comece a gerenciar seus projetos com Businessmap!
-
-### Configuração com N8N
-
-Para usar o MCP-Businessmap com N8N:
-
-1. No N8N, crie uma nova credencial do tipo "MCP Client (STDIO) API"
-2. Configure com os seguintes parâmetros:
-   - **Nome da Credencial**: "BusinessmapIntegration" (ou outro nome com pelo menos 3 caracteres)
-   - **Comando**: `npx`
-   - **Argumentos**:
-     ```
-     -y
-     mcp-businessmap
-     --transport=stdio
-     --businessmap-url=https://sua-instancia.kanbanize.com
-     --businessmap-apikey=SUA_API_KEY
-     ```
-
-**IMPORTANTE**: 
-- Certifique-se de que cada argumento esteja em uma linha separada, conforme mostrado acima.
-- Substitua "https://sua-instancia.kanbanize.com" pela URL do seu Businessmap
-- Substitua "SUA_API_KEY" pela sua chave de API do Businessmap
-- Por segurança, considere usar variáveis de ambiente para armazenar sua chave de API
-
-Alternativamente, você pode iniciar o servidor separadamente e configurar o N8N para se conectar a ele:
-
-1. Inicie o servidor em uma máquina acessível pela rede:
-```bash
-npx mcp-businessmap --transport=sse --port=8000 --businessmap-url=https://sua-instancia.kanbanize.com --businessmap-apikey=SUA_API_KEY
-```
-
-2. No N8N, use a opção "MCP Client (MCP Server)" em vez de "MCP Client (STDIO) API":
-   - URL: `http://IP-DA-MÁQUINA:8000`
-
-Para solucionar problemas de conexão, você pode adicionar o argumento `--verbose` para obter mais informações de depuração.
-
-### Outra Opção: Instalando via Smithery
-
-Para instalar mcp-businessmap para Claude Desktop automaticamente via Smithery:
+### Como servidor HTTP/SSE
 
 ```bash
-npx -y @smithery/cli install mcp-businessmap --client claude
+mcp-businessmap --transport=sse --port=8000 --host=0.0.0.0 --businessmap-url=https://your-instance.businessmap.io --businessmap-apikey=YOUR_API_KEY
 ```
 
-## Configuração e Uso
+## Opções
 
-Você pode configurar o servidor MCP usando argumentos de linha de comando:
+- `--transport`: Protocolo de transporte (`stdio` ou `sse`). Padrão: `stdio`
+- `--port`: Porta para o servidor HTTP (apenas para o transporte `sse`). Padrão: `8000`
+- `--host`: Host para o servidor HTTP (apenas para o transporte `sse`). Padrão: `0.0.0.0`
+- `--businessmap-url`: URL da sua instância do Businessmap.
+- `--businessmap-apikey`: Chave de API do Businessmap.
+- `--businessmap-boards-filter`: Lista de IDs de quadros para filtrar (separados por vírgula).
+- `--read-only`: Modo somente leitura (desativa operações de escrita). Padrão: `false`
+- `--businessmap-ssl-verify`: Verificar certificados SSL. Padrão: `true`
+- `--verbose`: Logs detalhados. Padrão: `false`
 
-```bash
-mcp-businessmap \
-  --transport=sse \
-  --port=8000 \
-  --businessmap-url=https://sua-instancia.kanbanize.com \
-  --businessmap-apikey=SUA_API_KEY
-```
+## Variáveis de ambiente
 
-### Argumentos Opcionais
+Em vez de passar argumentos na linha de comando, você pode usar variáveis de ambiente:
 
-- `--transport`: Escolha o tipo de transporte (`stdio` [padrão] ou `sse`)
-- `--port`: Número da porta para transporte SSE (padrão: 8000)
-- `--businessmap-ssl-verify/--no-businessmap-ssl-verify`: Ativar/desativar verificação SSL
-- `--businessmap-boards-filter`: Lista separada por vírgulas de IDs de quadros para filtrar resultados
-- `--read-only`: Executar em modo somente leitura (desativa todas as operações de escrita)
-- `--verbose`: Aumentar verbosidade de log
+- `BUSINESSMAP_URL`: URL da sua instância do Businessmap.
+- `BUSINESSMAP_APIKEY`: Chave de API do Businessmap.
+- `BUSINESSMAP_BOARDS_FILTER`: Lista de IDs de quadros para filtrar (separados por vírgula).
+- `READ_ONLY_MODE`: Modo somente leitura (`true` ou `false`).
 
-## Segurança
+## Uso com n8n
 
-**IMPORTANTE**: Nunca compartilhe sua chave de API do Businessmap em código-fonte público ou repositórios. Prefira usar:
+Para usar o MCP-Businessmap com o n8n:
 
-1. Variáveis de ambiente
-2. Arquivos de configuração que não são versionados (.env)
-3. Segredos gerenciados pelo seu serviço de hospedagem
-
-## Build (para desenvolvedores)
-
-```bash
-# Clonando o repositório
-git clone https://github.com/rlopes2-ops/-MCP-Businessmap.git
-cd MCP-Businessmap
-
-# Instalando dependências
-npm install
-
-# Compilando TypeScript
-npm run build
-
-# Para desenvolvimento (com hot reload)
-npm run dev
-
-# Para testar localmente
-npm link
-```
-
-## Publicação no npm
-
-Este pacote é publicado automaticamente no npm através de GitHub Actions. O processo funciona da seguinte forma:
-
-1. **Push para branch main**: Sempre que ocorre um push para a branch main, o GitHub Actions executa o workflow de publicação.
-
-2. **Criação de tag**: Para criar uma versão específica, crie e faça push de uma tag no formato `v1.0.0`:
+1. Instale o pacote mcp-businessmap globalmente no servidor onde o n8n está rodando:
    ```bash
-   git tag v1.0.0
-   git push origin v1.0.0
+   npm install -g mcp-businessmap
    ```
 
-3. **Configuração necessária**: Para que a publicação automática funcione, você precisa adicionar um segredo chamado `NPM_TOKEN` nas configurações do repositório no GitHub:
-   - Vá para o repositório no GitHub
-   - Acesse "Settings" > "Secrets and variables" > "Actions"
-   - Clique em "New repository secret"
-   - Nome: `NPM_TOKEN`
-   - Valor: Token de acesso do npm (gere um em npmjs.com > Account > Access Tokens)
+2. Inicie o MCP como um servidor HTTP/SSE:
+   ```bash
+   mcp-businessmap --transport=sse --port=8001 --host=0.0.0.0 --businessmap-url=https://your-instance.businessmap.io --businessmap-apikey=YOUR_API_KEY --verbose
+   ```
 
-### Publicação manual (alternativa)
+3. No n8n, adicione uma nova credencial:
+   - Tipo: MCP Client (MCP Server)
+   - SSE URL: `http://your-server-ip:8001/sse`
+   - Messages Post Endpoint: `http://your-server-ip:8001/json-rpc`
 
-Para publicar manualmente (se tiver npm instalado):
+4. Agora você pode usar o nó MCP nos seus workflows para interagir com o Businessmap.
+
+## Melhorias para compatibilidade com n8n
+
+Versão 1.1.0 traz as seguintes melhorias para compatibilidade com n8n:
+
+- Suporte completo a CORS para evitar problemas de conexão
+- Escuta em todas as interfaces de rede por padrão
+- Implementação SSE mais robusta com heartbeat a cada 30 segundos
+- Logs detalhados para ajudar no diagnóstico de problemas
+- Endpoint de verificação de saúde para monitoramento
+- Tratamento de erros aprimorado
+
+## Desenvolvimento
+
+### Clonar o repositório
 
 ```bash
-npm login
-npm publish
+git clone https://github.com/rlopes2-ops/-MCP-Businessmap.git
+cd -MCP-Businessmap
+```
+
+### Instalar dependências
+
+```bash
+npm install
+```
+
+### Executar em modo de desenvolvimento
+
+```bash
+npm run dev -- --transport=sse --port=8000 --businessmap-url=https://your-instance.businessmap.io --businessmap-apikey=YOUR_API_KEY
+```
+
+### Compilar
+
+```bash
+npm run build
 ```
 
 ## Licença
 
-Este MCP server é licenciado sob a Licença MIT.
+MIT
 
 ## Disclaimer
 
