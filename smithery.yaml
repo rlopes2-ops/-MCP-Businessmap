@@ -1,0 +1,14 @@
+name: mcp-businessmap
+description: MCP Server para busca e gerenciamento de cards no Businessmap (Kanbanize)
+version: 1.0.0
+license: MIT
+
+client:
+  claude:
+    config:
+      mcpServers:
+        businessmap:
+          command: npx
+          args:
+            - "-y"
+            - "mcp-businessmap" 

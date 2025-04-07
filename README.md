@@ -1,25 +1,132 @@
 # MCP Businessmap
 
-Projeto Model Context Protocol (MCP) para Businessmap (Kanbanize). Esta integração suporta acesso a cards, quadros, workfluxos e outras funcionalidades do Businessmap.
+MCP Server para busca e gerenciamento de cards no Businessmap (Kanbanize).
 
-## Funcionalidades 
+## Ferramentas
 
-- Busca de cards usando texto
-- Obtenção, criação, atualização e exclusão de cards
-- Gerenciamento de comentários
-- Visualização de quadros e colunas
-- Movimentação de cards entre colunas
+1. `businessmap_search`
+   * Busca cards no Businessmap
+   * Entrada Obrigatória: `query` (string)
+   * Entradas Opcionais:
+     * `board_id` (number)
+     * `column_id` (number)
+     * `limit` (number)
+     * `sort_by` (string)
+     * `sort_direction` (string)
+   * Retorna: Array de cards com detalhes como título, descrição, status, etc.
 
-## Instalação
+2. `businessmap_get_card`
+   * Obtém detalhes de um card específico
+   * Entrada Obrigatória: `card_id` (number)
+   * Retorna: Informações detalhadas sobre o card, incluindo histórico, comentários, anexos, etc.
+
+3. `businessmap_create_card`
+   * Cria um novo card
+   * Entradas Obrigatórias:
+     * `board_id` (number)
+     * `title` (string)
+   * Entradas Opcionais:
+     * `description` (string)
+     * `column_id` (number)
+     * `priority` (string)
+     * `tags` (array)
+   * Retorna: Informações do card criado
+
+4. `businessmap_update_card`
+   * Atualiza um card existente
+   * Entrada Obrigatória: `card_id` (number)
+   * Entradas Opcionais:
+     * `title` (string)
+     * `description` (string)
+     * `column_id` (number)
+     * `priority` (string)
+   * Retorna: Informações do card atualizado
+
+5. `businessmap_delete_card`
+   * Exclui um card existente
+   * Entrada Obrigatória: `card_id` (number)
+   * Retorna: Status da operação
+
+6. `businessmap_add_comment`
+   * Adiciona um comentário a um card
+   * Entradas Obrigatórias:
+     * `card_id` (number)
+     * `comment` (string)
+   * Retorna: Informações do comentário adicionado
+
+## Funcionalidades
+
+* Integração completa com a API do Businessmap (Kanbanize)
+* Suporte para modo somente leitura (--read-only)
+* Retorna dados JSON estruturados
+* Filtragem por quadros específicos
+* Configuração via variáveis de ambiente ou linha de comando
+
+## Setup
+
+### Instalando no Claude Desktop
+
+Antes de começar, certifique-se de que o Python 3.7+ está instalado em seu desktop.
+
+1. Vá para: Configurações > Desenvolvedor > Editar Configuração
+2. Adicione o seguinte ao seu `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "businessmap": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-businessmap",
+        "--businessmap-url=https://sua-empresa.kanbanize.com",
+        "--businessmap-apikey=sua_api_key"
+      ]
+    }
+  }
+}
+```
+
+Para modo somente leitura, use esta versão com `--read-only`:
+
+```json
+{
+  "mcpServers": {
+    "businessmap": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-businessmap",
+        "--businessmap-url=https://sua-empresa.kanbanize.com",
+        "--businessmap-apikey=sua_api_key",
+        "--read-only"
+      ]
+    }
+  }
+}
+```
+
+3. Reinicie o Claude Desktop e comece a gerenciar seus projetos com Businessmap!
+
+### Outra Opção: Instalando via Smithery
+
+Para instalar mcp-businessmap para Claude Desktop automaticamente via Smithery:
+
+```bash
+npx -y @smithery/cli install mcp-businessmap --client claude
+```
+
+### Instalação Manual
 
 ```bash
 # Usando pip
 pip install mcp-businessmap
 
 # Usando Docker
-git clone https://github.com/seu-usuario/mcp-businessmap.git
-cd mcp-businessmap
+git clone https://github.com/rlopes2-ops/-MCP-Businessmap.git
+cd MCP-Businessmap
 docker build -t mcp/businessmap .
+docker run -p 8000:8000 mcp/businessmap --businessmap-url=https://sua-empresa.kanbanize.com --businessmap-apikey=sua_api_key
 ```
 
 ## Configuração e Uso
@@ -41,47 +148,24 @@ mcp-businessmap \
 - `--read-only`: Executar em modo somente leitura (desativa todas as operações de escrita)
 - `--verbose`: Aumentar verbosidade de log
 
-## Integração com IDEs
+## Build (para desenvolvedores)
 
-### Claude Desktop Setup
+```bash
+# Clonando o repositório
+git clone https://github.com/rlopes2-ops/-MCP-Businessmap.git
+cd MCP-Businessmap
 
-```json
-{
-  "mcpServers": {
-    "mcp-businessmap": {
-      "command": "mcp-businessmap",
-      "args": [
-        "--businessmap-url=https://sua-empresa.kanbanize.com",
-        "--businessmap-apikey=sua_api_key"
-      ]
-    }
-  }
-}
+# Instalando dependências
+pip install -e .
+
+# Executando testes
+pytest
 ```
-
-### Cursor IDE Setup
-
-1. Abra as Configurações do Cursor
-2. Navegue até `Recursos` > `Servidores MCP`
-3. Clique em `+ Adicionar novo servidor MCP global`
-
-## Recursos Disponíveis
-
-- `businessmap://{board_id}`: Acesso a quadros do Businessmap
-
-## Ferramentas Disponíveis
-
-| Ferramenta | Descrição |
-|------|-------------|
-| `businessmap_search` | Busca cards no Businessmap |
-| `businessmap_get_card` | Obtém detalhes de um card específico |
-| `businessmap_create_card` | Cria um novo card |
-| `businessmap_update_card` | Atualiza um card existente |
-| `businessmap_delete_card` | Exclui um card existente |
-| `businessmap_add_comment` | Adiciona um comentário a um card |
 
 ## Licença
 
-Licenciado sob MIT - veja o arquivo LICENSE.
+Este MCP server é licenciado sob a Licença MIT.
 
-Este projeto é baseado no projeto [MCP-Atlassian](https://github.com/sooperset/mcp-atlassian) mas foi adaptado para trabalhar com o Businessmap (Kanbanize). 
+## Disclaimer
+
+Businessmap e Kanbanize são marcas registradas de seus respectivos proprietários. Este projeto não está relacionado oficialmente à Kanbanize ou suas subsidiárias. 
