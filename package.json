@@ -1,17 +1,19 @@
 {
   "name": "mcp-businessmap",
-  "version": "1.1.1",
-  "description": "MCP Server para Businessmap (Kanbanize)",
+  "version": "1.1.5",
+  "description": "MCP Server for Businessmap (Kanbanize)",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "mcp-businessmap": "dist/index.js"
+    "mcp-businessmap": "./bin/mcp-businessmap"
   },
   "scripts": {
-    "start": "node dist/index.js",
     "dev": "ts-node src/index.ts",
-    "build": "tsc && chmod +x dist/index.js",
-    "prepare": "npm run build"
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "build:docker": "smith build --build-arg NPM_TOKEN=${NPM_TOKEN}",
+    "deploy:docker": "smith deploy",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "mcp",
@@ -26,28 +28,28 @@
     "README.md",
     "LICENSE"
   ],
-  "homepage": "https://github.com/rlopes2-ops/-MCP-Businessmap",
+  "homepage": "https://github.com/rlopes2-ops/-MCP-Businessmap#readme",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rlopes2-ops/-MCP-Businessmap.git"
   },
-  "author": "rlopes2-ops",
+  "author": "R. Lopes",
   "license": "MIT",
   "engines": {
     "node": ">=14.0.0"
   },
   "dependencies": {
     "axios": "^1.6.7",
-    "dotenv": "^16.4.1",
-    "minimist": "^1.2.8",
+    "commander": "^11.1.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
     "express": "^4.18.2",
-    "cors": "^2.8.5"
+    "jsonrpc-lite": "^2.2.0"
   },
   "devDependencies": {
-    "@types/minimist": "^1.2.5",
-    "@types/node": "^20.11.16",
-    "@types/express": "^4.17.21",
     "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.10.4",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
   }

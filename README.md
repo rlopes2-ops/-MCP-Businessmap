@@ -119,7 +119,7 @@ Para usar o MCP-Businessmap com o n8n:
 
 ## Melhorias para compatibilidade com n8n
 
-Versão 1.1.1 traz as seguintes melhorias para compatibilidade com n8n:
+Versão 1.1.5 traz as seguintes melhorias para compatibilidade com n8n:
 
 - Suporte completo a CORS para evitar problemas de conexão
 - Escuta em todas as interfaces de rede por padrão
